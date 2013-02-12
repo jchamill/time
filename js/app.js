@@ -32,6 +32,19 @@
 		}
 	};
 	
+	var timer = {
+		start_time: 0,
+		interval: null,
+		speed: 5000,
+		start: function(start_time, func) {
+			this.start_time = start_time;
+			this.interval = setInterval(func, this.speed);
+		},
+		stop: function() {
+			clearInterval(this.interval);
+		}
+	};
+	
 	var TimeEntry = function(description) {
 		this.id = this.generateId();
 		this.description = description;
@@ -75,6 +88,7 @@
 	};
 	
 	var ui = {
+		$current_li: undefined,
 		init: function() {
 			$('body').append('<div id="entry"><input type="text" id="input" name="input" placeholder="Enter task..." /><input type="button" id="save" value="Save" /></div><ul id="entries"></ul>');
 			$('#save').click(this.saveHandler);
@@ -96,6 +110,13 @@
 				$('#entries').append('<li id="' + data[i].id + '"><span class="description">' + data[i].description + '</span> <span class="time">[' + util.ms2m(data[i].totalTime) + ']</span><span class="controls"><input type="button" class="start" value="Start" /> <input type="button" class="edit" value="Edit" /> <input type="button" class="delete" value="Delete" /></span></li>');
 			}
 		},
+		updateTime: function() {
+			//console.log(this);
+			//"this" context is window cause it is called from setInterval
+			var now = new Date().getTime();
+			var totalTime = now - timer.start_time;
+			ui.$current_li.find('.time').html('[' + util.ms2m(totalTime) + ']');
+		},
 		saveHandler: function(e) {
 			var desc = $('#input').val();
 			$('#input').val('');
@@ -107,6 +128,8 @@
 		startHandler: function(e) {
 			//get parent li from click event
 			$li = $(e.target).parent().parent().addClass('active');
+			//store a reference to the li element that is recording
+			ui.$current_li = $li;
 			//update start button on clicked start button (make stop button)
 			$li.find('.start').removeClass('start').addClass('stop').attr('value', 'Stop');
 			//disable all buttons
@@ -114,8 +137,12 @@
 			//set start time on clicked time entry
 			var id = $li.attr('id');
 			var te = TimeEntry.get(id);
-			te.setStartTime(new Date().getTime());
+			var start_time = new Date().getTime();
+			te.setStartTime(start_time);
 			te.save();
+			//"this" is bound to the start button element so prefix with ui
+			//we subtract totalTime so the running total is correct
+			timer.start(start_time - te.totalTime, ui.updateTime);
 			//console.log(window['localStorage']);
 		},
 		stopHandler: function(e) {
@@ -133,6 +160,7 @@
 			$li.find('.time').html('[' + util.ms2m(totalTime) + ']');
 			te.setTotalTime(totalTime);
 			te.save();
+			timer.stop();
 			//console.log(window['localStorage']);
 		},
 		deleteHandler: function(e) {
