@@ -59,3 +59,14 @@ body {background:#fff; color:#333; font-family:Arial, Helvetica, sans-serif;}
 #entries .time {display:inline-block; width:15%; text-align:center;}
 #entries .controls {display:inline-block; width:14%; text-align:center;}
 #entries .edit-text {font-size:.75em; padding:.25em; width:90%;}
+
+@media only screen and (max-width: 640px) {
+	#input {width:80%;}
+	#entries .description {width:83%;}
+	#entries .controls {width:100%; display:block; margin-top:.5em;}
+}
+
+@media only screen and (max-width: 420px) {
+	#input {width:90%;}
+	#save {display:block; width:99%; margin-top:.5em;}
+}
