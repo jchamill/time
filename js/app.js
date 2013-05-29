@@ -29,7 +29,10 @@
 		},
 		m2ms: function(m) {
 			return parseInt(m) * 60 * 1000;
-		}
+		},
+        ms2quarterHours: function(ms) {
+            return (this.ms2m(ms) / 60).toFixed(2);
+        }
 	};
 	
 	var timer = {
@@ -107,7 +110,7 @@
 		loadEntries: function() {
 			var data = storage.getAllByDate();
 			for (var i=0, l=data.length; i<l; i++) {
-				$('#entries').append('<li id="' + data[i].id + '"><span class="description">' + data[i].description + '</span> <span class="time">[' + util.ms2m(data[i].totalTime) + ']</span><span class="controls"><input type="button" class="start" value="Start" /> <input type="button" class="edit" value="Edit" /> <input type="button" class="delete" value="Delete" /></span></li>');
+				$('#entries').append('<li id="' + data[i].id + '"><span class="description">' + data[i].description + '</span> <span class="time">[' + util.ms2quarterHours(data[i].totalTime) + ']</span><span class="controls"><input type="button" class="start" value="Start" /> <input type="button" class="edit" value="Edit" /> <input type="button" class="delete" value="Delete" /></span></li>');
 			}
 		},
 		updateTime: function() {
@@ -115,7 +118,7 @@
 			//"this" context is window cause it is called from setInterval
 			var now = new Date().getTime();
 			var totalTime = now - timer.start_time;
-			ui.$current_li.find('.time').html('[' + util.ms2m(totalTime) + ']');
+			ui.$current_li.find('.time').html('[' + util.ms2quarterHours(totalTime) + ']');
 		},
 		saveHandler: function(e) {
 			var desc = $('#input').val();
@@ -123,7 +126,7 @@
 			var te = new TimeEntry(desc);
 			te.setDateEntry(new Date());
 			te.save();
-			$('#entries').append('<li id="' + te.id + '"><span class="description">' + desc + '</span> <span class="time">[' + util.ms2m(te.totalTime) + ']</span><span class="controls"><input type="button" class="start" value="Start" /> <input type="button" class="edit" value="Edit" /> <input type="button" class="delete" value="Delete" /></span></li>');
+			$('#entries').append('<li id="' + te.id + '"><span class="description">' + desc + '</span> <span class="time">[' + util.ms2quarterHours(te.totalTime) + ']</span><span class="controls"><input type="button" class="start" value="Start" /> <input type="button" class="edit" value="Edit" /> <input type="button" class="delete" value="Delete" /></span></li>');
 		},
 		startHandler: function(e) {
 			//get parent li from click event
@@ -157,7 +160,7 @@
 			var te = TimeEntry.get(id);
 			var stopTime = new Date().getTime();
 			var totalTime = stopTime - te.startTime + te.totalTime;
-			$li.find('.time').html('[' + util.ms2m(totalTime) + ']');
+			$li.find('.time').html('[' + util.ms2quarterHours(totalTime) + ']');
 			te.setTotalTime(totalTime);
 			te.save();
 			timer.stop();
@@ -199,7 +202,7 @@
 			te.save();
 			//convert back to normal entry (no text fields)
 			$li.find('.description').html(te.description);
-			$li.find('.time').html('[' + util.ms2m(te.totalTime) + ']');
+			$li.find('.time').html('[' + util.ms2quarterHours(te.totalTime) + ']');
 		}
 	};
 	
